@@ -36,11 +36,20 @@
     }
 
     .player {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       padding: 5px;
       background-color: #f0f0f0;
       margin: 5px 0;
       text-align: center;
       cursor: move;
+      gap: 5px;
+    }
+
+    .player button {
+      cursor: pointer;
+      font-size: 16px;
     }
 
     textarea {
@@ -82,17 +91,52 @@
   </div>
 
   <script>
+    function createPlayerElement(name) {
+      const div = document.createElement('div');
+      div.className = 'player';
+      div.draggable = true;
+      div.textContent = '';
+      div.ondragstart = drag;
+
+      const leftBtn = document.createElement('button');
+      leftBtn.textContent = '←';
+      leftBtn.onclick = () => {
+        const parentId = div.parentElement.id;
+        if (parentId === 'pool') {
+          document.getElementById('team1').appendChild(div);
+        } else {
+          document.getElementById('pool').appendChild(div);
+        }
+      };
+
+      const rightBtn = document.createElement('button');
+      rightBtn.textContent = '→';
+      rightBtn.onclick = () => {
+        const parentId = div.parentElement.id;
+        if (parentId === 'pool') {
+          document.getElementById('team2').appendChild(div);
+        } else {
+          document.getElementById('pool').appendChild(div);
+        }
+      };
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = name;
+
+      div.appendChild(leftBtn);
+      div.appendChild(nameSpan);
+      div.appendChild(rightBtn);
+
+      return div;
+    }
+
     function loadNames() {
       const input = document.getElementById('nameInput').value;
       const names = input.split('\n').map(name => name.trim()).filter(name => name);
       const pool = document.getElementById('pool');
       pool.innerHTML = '<h3>Oyuncu Havuzu</h3>';
       names.forEach(name => {
-        const div = document.createElement('div');
-        div.className = 'player';
-        div.draggable = true;
-        div.textContent = name;
-        div.ondragstart = drag;
+        const div = createPlayerElement(name);
         pool.appendChild(div);
       });
     }
