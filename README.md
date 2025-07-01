@@ -1,2 +1,2 @@
 # kadro-kur
-none
+[none](https://berketabak.github.io/kadro-kur/)
