@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Team Splitter</title>
+  <title>Kadro Ayırıcı</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,15 +16,19 @@
 
     .container {
       display: flex;
+      flex-direction: row;
       justify-content: center;
-      gap: 50px;
+      gap: 20px;
+      flex-wrap: wrap;
+      width: 100%;
     }
 
     .column {
       border: 2px dashed #999;
       padding: 10px;
-      width: 200px;
+      min-width: 200px;
       min-height: 300px;
+      flex: 1;
     }
 
     .column h3 {
@@ -39,26 +44,40 @@
     }
 
     textarea {
-      width: 400px;
+      width: 90%;
+      max-width: 400px;
       height: 100px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .column {
+        width: 90%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Team Splitter</h1>
-  <textarea id="nameInput" placeholder="Enter player names, one per line..."></textarea><br>
-  <button onclick="loadNames()">Load Names</button>
-  <button onclick="randomSplit()">Random Split</button>
+  <h1>Kadro Ayırıcı</h1>
+  <textarea id="nameInput" placeholder="Oyuncu isimlerini her satıra bir tane gelecek şekilde yazın..."></textarea><br>
+  <button onclick="loadNames()">İsimleri Yükle</button>
+  <button onclick="randomSplit()">Rastgele Böl</button><br>
+
+  <label>Sol Takım Adı: <input type="text" id="team1Name" value="Siyah Takım" oninput="updateTeamNames()"></label>
+  <label>Sağ Takım Adı: <input type="text" id="team2Name" value="Beyaz Takım" oninput="updateTeamNames()"></label>
 
   <div class="container">
     <div class="column" id="team1" ondragover="allowDrop(event)" ondrop="drop(event)">
-      <h3>Team 1</h3>
+      <h3 id="team1Header">Siyah Takım</h3>
     </div>
     <div class="column" id="pool" ondragover="allowDrop(event)" ondrop="drop(event)">
-      <h3>Player Pool</h3>
+      <h3>Oyuncu Havuzu</h3>
     </div>
     <div class="column" id="team2" ondragover="allowDrop(event)" ondrop="drop(event)">
-      <h3>Team 2</h3>
+      <h3 id="team2Header">Beyaz Takım</h3>
     </div>
   </div>
 
@@ -67,7 +86,7 @@
       const input = document.getElementById('nameInput').value;
       const names = input.split('\n').map(name => name.trim()).filter(name => name);
       const pool = document.getElementById('pool');
-      pool.innerHTML = '<h3>Player Pool</h3>';
+      pool.innerHTML = '<h3>Oyuncu Havuzu</h3>';
       names.forEach(name => {
         const div = document.createElement('div');
         div.className = 'player';
@@ -104,8 +123,8 @@
       const players = Array.from(pool.querySelectorAll('.player'));
       if (players.length === 0) return;
 
-      team1.innerHTML = '<h3>Team 1</h3>';
-      team2.innerHTML = '<h3>Team 2</h3>';
+      team1.innerHTML = `<h3 id="team1Header">${document.getElementById('team1Name').value}</h3>`;
+      team2.innerHTML = `<h3 id="team2Header">${document.getElementById('team2Name').value}</h3>`;
 
       const shuffled = players.sort(() => Math.random() - 0.5);
       shuffled.forEach((player, index) => {
@@ -115,6 +134,11 @@
           team2.appendChild(player);
         }
       });
+    }
+
+    function updateTeamNames() {
+      document.getElementById('team1Header').textContent = document.getElementById('team1Name').value;
+      document.getElementById('team2Header').textContent = document.getElementById('team2Name').value;
     }
   </script>
 </body>
