@@ -58,6 +58,25 @@
       height: 100px;
     }
 
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .form-row label {
+      flex: 1;
+    }
+
+    canvas {
+      display: none;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+
     @media (max-width: 600px) {
       .container {
         flex-direction: column;
@@ -66,18 +85,28 @@
       .column {
         width: 90%;
       }
+      .form-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
   <h1>Kadro Ayırıcı</h1>
   <textarea id="nameInput" placeholder="Oyuncu isimlerini her satıra bir tane gelecek şekilde yazın..."></textarea><br>
-  <button onclick="loadNames()">İsimleri Yükle</button>
+  <button onclick="loadNames()">İsimleri Havuza Aktar</button>
   <button onclick="randomSplit()">Takımları Rastgele Böl</button>
-  <button onclick="generateOutput()">Maç Mesajını Oluştur</button><br>
+  <button onclick="generateImage()">Görsel Olarak Oluştur</button>
+  <button onclick="downloadImage()">Görseli İndir</button><br>
 
-  <label>Sol Takım Adı: <input type="text" id="team1Name" value="Siyah Takım" oninput="updateTeamNames()"></label>
-  <label>Sağ Takım Adı: <input type="text" id="team2Name" value="Beyaz Takım" oninput="updateTeamNames()"></label>
+  <div class="form-row">
+    <label>Sol Takım Adı: <input type="text" id="team1Name" value="Siyah Takım" oninput="updateTeamNames()"></label>
+    <label>Sağ Takım Adı: <input type="text" id="team2Name" value="Beyaz Takım" oninput="updateTeamNames()"></label>
+  </div>
+  <div class="form-row">
+    <label>Lokasyon: <input type="text" id="locationInput" placeholder="Örn: Caddebostan"></label>
+    <label>Saat: <input type="text" id="timeInput" placeholder="Örn: 19:30"></label>
+  </div>
 
   <div class="container">
     <div class="column" id="team1" ondragover="allowDrop(event)" ondrop="drop(event)">
@@ -91,7 +120,7 @@
     </div>
   </div>
 
-  <textarea id="outputText" readonly placeholder="Hazır mesaj burada görünecek..." style="width:90%; max-width:600px; height:150px;"></textarea>
+  <canvas id="squadCanvas" width="800" height="600"></canvas>
 
   <script>
     function createPlayerElement(name) {
@@ -188,20 +217,57 @@
       document.getElementById('team2Header').textContent = document.getElementById('team2Name').value;
     }
 
-    function generateOutput() {
-      const team1Name = document.getElementById('team1Name').value;
-      const team2Name = document.getElementById('team2Name').value;
+    function generateImage() {
+      const canvas = document.getElementById("squadCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const team1Players = Array.from(document.getElementById('team1').querySelectorAll('.player span'))
-        .map(span => span.textContent);
-      const team2Players = Array.from(document.getElementById('team2').querySelectorAll('.player span'))
-        .map(span => span.textContent);
+      ctx.fillStyle = "#0f0f1e";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      let output = `📍 Lokasyon: ...\n🕓 Saat: ...\n\n📋 *Maç Kadrosu*\n\n`;
-      output += `✅ ${team1Name}:\n${team1Players.map(p => '- ' + p).join('\n')}\n\n`;
-      output += `✅ ${team2Name}:\n${team2Players.map(p => '- ' + p).join('\n')}`;
+      ctx.fillStyle = "white";
+      ctx.font = "bold 32px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("MAÇ KADROSU", canvas.width / 2, 50);
 
-      document.getElementById('outputText').value = output;
+      const team1Name = document.getElementById("team1Name").value;
+      const team2Name = document.getElementById("team2Name").value;
+      const location = document.getElementById("locationInput").value || "...";
+      const time = document.getElementById("timeInput").value || "...";
+
+      ctx.font = "bold 24px Arial";
+      ctx.textAlign = "left";
+      ctx.fillText(team1Name, 60, 100);
+      ctx.textAlign = "right";
+      ctx.fillText(team2Name, canvas.width - 60, 100);
+
+      const team1Players = Array.from(document.getElementById("team1").querySelectorAll(".player span")).map(s => s.textContent);
+      const team2Players = Array.from(document.getElementById("team2").querySelectorAll(".player span")).map(s => s.textContent);
+
+      ctx.font = "20px Arial";
+      for (let i = 0; i < team1Players.length; i++) {
+        ctx.textAlign = "left";
+        ctx.fillText("- " + team1Players[i], 60, 140 + i * 30);
+      }
+      for (let i = 0; i < team2Players.length; i++) {
+        ctx.textAlign = "right";
+        ctx.fillText("- " + team2Players[i], canvas.width - 60, 140 + i * 30);
+      }
+
+      ctx.font = "16px Arial";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#cccccc";
+      ctx.fillText(`Lokasyon: ${location}  |  Saat: ${time}`, canvas.width / 2, canvas.height - 30);
+
+      canvas.style.display = "block";
+    }
+
+    function downloadImage() {
+      const canvas = document.getElementById("squadCanvas");
+      const link = document.createElement('a');
+      link.download = 'mac-kadrosu.png';
+      link.href = canvas.toDataURL();
+      link.click();
     }
   </script>
 </body>
