@@ -73,7 +73,8 @@
   <h1>Kadro Ayırıcı</h1>
   <textarea id="nameInput" placeholder="Oyuncu isimlerini her satıra bir tane gelecek şekilde yazın..."></textarea><br>
   <button onclick="loadNames()">İsimleri Yükle</button>
-  <button onclick="randomSplit()">Rastgele Böl</button><br>
+  <button onclick="randomSplit()">Takımları Rastgele Böl</button>
+  <button onclick="generateOutput()">Maç Mesajını Oluştur</button><br>
 
   <label>Sol Takım Adı: <input type="text" id="team1Name" value="Siyah Takım" oninput="updateTeamNames()"></label>
   <label>Sağ Takım Adı: <input type="text" id="team2Name" value="Beyaz Takım" oninput="updateTeamNames()"></label>
@@ -89,6 +90,8 @@
       <h3 id="team2Header">Beyaz Takım</h3>
     </div>
   </div>
+
+  <textarea id="outputText" readonly placeholder="Hazır mesaj burada görünecek..." style="width:90%; max-width:600px; height:150px;"></textarea>
 
   <script>
     function createPlayerElement(name) {
@@ -183,6 +186,22 @@
     function updateTeamNames() {
       document.getElementById('team1Header').textContent = document.getElementById('team1Name').value;
       document.getElementById('team2Header').textContent = document.getElementById('team2Name').value;
+    }
+
+    function generateOutput() {
+      const team1Name = document.getElementById('team1Name').value;
+      const team2Name = document.getElementById('team2Name').value;
+
+      const team1Players = Array.from(document.getElementById('team1').querySelectorAll('.player span'))
+        .map(span => span.textContent);
+      const team2Players = Array.from(document.getElementById('team2').querySelectorAll('.player span'))
+        .map(span => span.textContent);
+
+      let output = `📍 Lokasyon: ...\n🕓 Saat: ...\n\n📋 *Maç Kadrosu*\n\n`;
+      output += `✅ ${team1Name}:\n${team1Players.map(p => '- ' + p).join('\n')}\n\n`;
+      output += `✅ ${team2Name}:\n${team2Players.map(p => '- ' + p).join('\n')}`;
+
+      document.getElementById('outputText').value = output;
     }
   </script>
 </body>
